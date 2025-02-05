@@ -1,24 +1,43 @@
 'use client';
 import { ChevronDoubleUpIcon } from '@heroicons/react/16/solid';
 import { ChangeEvent, FormEvent, useState } from 'react';
+
+interface Calculation {
+  wh: number;
+  gCO2: number;
+  yearlyLBS: number;
+  percentIncrease: number;
+}
+
+const AVERAGE_LBS_PER_YEAR = 9600;
+
 export default function Home() {
   const [input, setInput] = useState(0);
-  const [response, setResponse] = useState<any>({});
+  const [response, setResponse] = useState<Calculation>({
+    wh: 0,
+    gCO2: 0,
+    yearlyLBS: 0,
+    percentIncrease: 0,
+  });
 
-  const handleOnSubmit = async (e: FormEvent) => {
+  const handleOnSubmit = (e: FormEvent) => {
     e.preventDefault();
-    const resp = await calculateTotal(input);
+    const resp = executeCalculations(input);
     if (resp) {
       setResponse(resp);
     }
   };
-  const calculateTotal = async (number: number) => {
+
+  const executeCalculations = (number: number) => {
     const wh = number * 2.9;
     const gCO2 = 481 * (wh / 1000);
+    const yearlyLBS = (gCO2 / 1000) * 365 * 2.204;
+    const percentIncrease = ((AVERAGE_LBS_PER_YEAR + yearlyLBS - AVERAGE_LBS_PER_YEAR) / AVERAGE_LBS_PER_YEAR) * 100;
     return {
       wh: wh,
-      microwaveSeconds: number * 15,
       gCO2: gCO2,
+      yearlyLBS: yearlyLBS,
+      percentIncrease: percentIncrease,
     };
   };
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -46,32 +65,39 @@ export default function Home() {
           type="number"
           placeholder="0"
         />
-        <button className="transition hover:shadow-lg hover:shadow-green-500/25 mt-3 bg-green-700 pointer rounded-full text-xl p-2">Calculate</button>
+        <button className="transition hover:shadow-lg hover:shadow-green-500/25 mt-3 bg-green-700 pointer rounded-full text-xl p-2">
+          Calculate
+        </button>
       </form>
       {response.wh ? (
         <div>
-        <div className="mt-10 p-5 text-3xl lg:text-4xl text-left font-extrabold rounded-lg shadow-2xl shadow-green-600 border border-green-500/15 w-max mx-auto">
-          <div>
-            {response.wh?.toFixed(2)} <span className="text-sm">Wh</span>
+          <div className="mt-10 p-5 text-3xl lg:text-4xl text-left font-extrabold rounded-lg shadow-2xl shadow-green-600 border border-green-500/15 w-max mx-auto">
+            <div>
+              {response.wh?.toFixed(2)} <span className="text-sm">Wh</span>
+            </div>
+            <div>
+              {response?.gCO2?.toFixed(2)}{' '}
+              <span className="text-sm">
+                gCO<sub>2</sub>
+              </span>
+            </div>
+            <div>
+              {response?.yearlyLBS?.toFixed(2)}{' '}
+              <span className="text-sm">
+                lbsCO<sub>2</sub> / year
+              </span>
+            </div>
           </div>
-          <div>
-            {response?.gCO2?.toFixed(2)}{' '}
-            <span className="text-sm">
-              gCO<sub>2</sub>
+          <div className="mt-10 flex items-center justify-center">
+            <ChevronDoubleUpIcon className="w-6 h-6 text-red-500" />
+            <div className="text-xl font-bold">{response?.percentIncrease?.toFixed(2)}% yearly</div>
+          </div>
+          <div className="text-sm">
+            *Based on yearly average of {AVERAGE_LBS_PER_YEAR}{' '}
+            <span className="text-xs">
+              lbsC0<sub>2</sub> / year
             </span>
           </div>
-          <div>
-            {(((response?.gCO2?.toFixed(2) * 365) / 1000) * 2.204).toFixed(2)}{' '}
-            <span className="text-sm">
-              lbsCO<sub>2</sub> / year
-            </span>
-          </div>
-        </div>
-          <div className='mt-10 flex items-center justify-center'>
-            <ChevronDoubleUpIcon className='w-6 h-6 text-red-500'/>
-            <div className='text-xl font-bold'>{(((((9600.00+((((response?.gCO2 * 365) / 1000) * 2.204))-9600)/9600)))*100).toFixed(2)}% yearly</div>
-          </div>
-          <div className='text-sm'>*Based on yearly average of 9600 <span className='text-xs'>lbsC0<sub>2</sub> / year</span></div>
         </div>
       ) : (
         ''
