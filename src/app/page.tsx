@@ -71,7 +71,7 @@ export default function Home() {
             <ChevronDoubleUpIcon className='w-6 h-6 text-red-500'/>
             <div className='text-xl font-bold'>{(((((9600.00+((((response?.gCO2 * 365) / 1000) * 2.204))-9600)/9600)))*100).toFixed(2)}% yearly</div>
           </div>
-          <div className='text-sm'>*Based on 9600 <span className='text-xs'>lbsC0<sub>2</sub> / year</span> average</div>
+          <div className='text-sm'>*Based on yearly average of 9600 <span className='text-xs'>lbsC0<sub>2</sub> / year</span></div>
         </div>
       ) : (
         ''
